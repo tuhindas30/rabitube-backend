@@ -1,14 +1,14 @@
 const { Video } = require("../models/video.model");
-const {HttpError} = require("../utils/helper");
+const { HttpError } = require("../utils/helper");
 
 const getAllVideos = async (_, res, next) => {
   try {
-    const videos = await Video.find({}).populate("category")
-    res.json({ status: "SUCCESS", message: "Videos found", videos })
+    const videos = await Video.find({}).populate("category");
+    res.json({ status: "SUCCESS", message: "Videos found", videos });
   } catch (err) {
-    next(err)
+    next(err);
   }
-}
+};
 
 const findVideo = async (req, res, next, vId) => {
   try {
@@ -21,6 +21,6 @@ const findVideo = async (req, res, next, vId) => {
   } catch (err) {
     next(err);
   }
-}
+};
 
 module.exports = { getAllVideos, findVideo };

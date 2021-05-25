@@ -8,11 +8,15 @@ const getAllCategories = async (_, res, next) => {
     if (!categories) {
       throw new HttpError(404, "No categories exists");
     }
-    return res.json({ status: "SUCCESS", message: "Categories found", categories });
+    return res.json({
+      status: "SUCCESS",
+      message: "Categories found",
+      categories,
+    });
   } catch (err) {
     next(err);
   }
-}
+};
 
 const findCategory = async (req, res, next, categoryId) => {
   try {
@@ -26,33 +30,45 @@ const findCategory = async (req, res, next, categoryId) => {
   } catch (err) {
     next(err);
   }
-}
-
+};
 
 const getCategory = async (req, res, next) => {
   let { category } = req;
   category.__v = undefined;
-  res.json({ status: "SUCCESS", message: "Category found", category })
-}
+  res.json({ status: "SUCCESS", message: "Category found", category });
+};
 
 const deleteCategory = async (req, res, next) => {
   try {
     const { categoryId } = req.params;
     const deletedItem = await Category.findByIdAndDelete(categoryId);
-    res.json({ status: "SUCCESS", message: `Category ${categoryId} deleted successfully` })
+    res.json({
+      status: "SUCCESS",
+      message: `Category ${categoryId} deleted successfully`,
+    });
   } catch (err) {
     next(err);
   }
-}
+};
 
 const createNewCategory = async (req, res, next) => {
   try {
     const { title } = req.body;
     const newCategory = await new Category({ title }).save();
-    res.json({ status: "SUCCESS", message: "Category created successfully", category: newCategory });
+    res.json({
+      status: "SUCCESS",
+      message: "Category created successfully",
+      category: newCategory,
+    });
   } catch (err) {
     next(err);
   }
-}
+};
 
-module.exports = { getAllCategories, findCategory, getCategory, deleteCategory, createNewCategory };
+module.exports = {
+  getAllCategories,
+  findCategory,
+  getCategory,
+  deleteCategory,
+  createNewCategory,
+};

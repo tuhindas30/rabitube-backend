@@ -1,5 +1,8 @@
+const { HttpError } = require("../utils/helper");
+
 const undefinedRoutesHandler = (req, res, next) => {
-  res.status(404).json({ status: "ERROR", message: "The route doesn't exist" });
-}
+  const err = new HttpError(404, "Not Found");
+  next(err);
+};
 
 module.exports = undefinedRoutesHandler;

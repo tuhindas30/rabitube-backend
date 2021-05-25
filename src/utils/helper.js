@@ -1,5 +1,5 @@
-function HttpError (statusCode, message) {
-  this.statusCode = statusCode;
+function HttpError(status, message) {
+  this.status = status;
   this.message = message;
 }
 
