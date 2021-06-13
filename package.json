@@ -1,11 +1,11 @@
 {
-  "name": "rabitube",
+  "name": "rabitube-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "backend for RabiTube",
   "main": "index.js",
   "scripts": {
     "start": "node src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon src/index.js"
   },
   "keywords": [
     "mern",
@@ -16,11 +16,15 @@
   "author": "Tuhin Das",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^5.0.1",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
-    "dotenv": "^9.0.2",
     "express": "^4.17.1",
-    "lodash": "^4.17.21",
+    "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.12.7"
+  },
+  "devDependencies": {
+    "dotenv": "^10.0.0",
+    "nodemon": "^2.0.7"
   }
 }
