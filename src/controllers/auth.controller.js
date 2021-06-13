@@ -1,14 +1,19 @@
+const jwt = require("jsonwebtoken");
 const { User } = require("../models/user.model");
-const { HttpError } = require("../utils/helper");
+const { userResponse, HttpError } = require("../utils/helper");
+const { doesUserExist } = require("./helper");
 
 const signup = async (req, res, next) => {
   try {
     const userData = req.body;
-    const saveUser = await new User(userData).save();
+    let user = new User(userData);
+    await user.setHashedPassword();
+    user = await user.save();
+    req.userId = user._id;
     res.json({
       status: "SUCCESS",
+      data: userResponse(user),
       message: "User saved successfully",
-      user: saveUser,
     });
   } catch (err) {
     next(err);
@@ -18,25 +23,23 @@ const signup = async (req, res, next) => {
 const signin = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    let user = await User.findOne({ email })
-      .populate("watchlater")
-      .populate("liked")
-      .populate("playlists.videos");
-
+    let user = await User.findOne({ email });
     if (!user) {
-      throw new HttpError(401, "Email does not exist");
+      throw new HttpError(400, "User does not exist");
     }
-
-    if (password === user.password) {
-      user.__v = undefined;
-      user.password = undefined;
-      return res.json({
-        status: "SUCCESS",
-        message: "User signed in successfully",
-        user,
-      });
+    if (!(await user.checkPassword(password))) {
+      throw new HttpError(401, "Email or password not matched");
     }
-    throw new HttpError(401, "Password not matched");
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "24h",
+      issuer: "RabiTube",
+    });
+    req.userId = user._id;
+    return res.json({
+      status: "SUCCESS",
+      data: { user: userResponse(user), token },
+      message: "User signed in successfully",
+    });
   } catch (err) {
     next(err);
   }
@@ -44,19 +47,20 @@ const signin = async (req, res, next) => {
 
 const changePassword = async (req, res, next) => {
   try {
-    const { userId, oldPassword, newPassword } = req.body;
-    const user = await User.findById(userId);
-
-    if (oldPassword === user.password) {
-      user.password = newPassword;
-      await user.save();
-      return res.json({
-        status: "SUCCESS",
-        message: "Password changed successfully",
-        user,
-      });
+    const { userId } = req;
+    const { oldPassword, newPassword } = req.body;
+    const user = await doesUserExist(userId);
+    if (!(await user.checkPassword(oldPassword))) {
+      throw new HttpError(401, "Your password not matched");
     }
-    throw new HttpError(401, "Your old password does not matched");
+    user.password = newPassword;
+    await user.setHashedPassword();
+    await user.save();
+    return res.json({
+      status: "SUCCESS",
+      data: userResponse(user),
+      message: "Password changed successfully",
+    });
   } catch (err) {
     next(err);
   }
