@@ -1,43 +1,52 @@
 const mongoose = require("mongoose");
-const { Schema } = mongoose;
+const bcrypt = require("bcrypt");
+const { Schema, model } = mongoose;
 
-const UserSchema = new Schema({
-  username: {
-    type: String,
-    required: "Cannot have a user without a username",
-    unique: true
-  },
-  email: {
-    type: String,
-    required: "Cannot enter a user without email",
-    unique: true,
-    trim: true
-  },
-  password: {
-    type: String,
-    required: "Cannot have a user without a password",
-    trim: true
-  },
-  liked: [{
-    type: Schema.Types.ObjectId,
-    ref: "Video"
-  }],
-  watchlater: [{
-    type: Schema.Types.ObjectId,
-    ref: "Video"
-  }],
-  playlists: [{
-    title: {
+const UserSchema = new Schema(
+  {
+    username: {
       type: String,
-      required: "Cannot have playlist without its name"
+      required: "Cannot have a user without a username",
+      maxLength: 50,
+      unique: true,
     },
-    videos: [{
-      type: Schema.Types.ObjectId,
-      ref: "Video"
-    }]
-  }]
-})
+    email: {
+      type: String,
+      required: "Cannot enter a user without email",
+      index: true,
+      unique: true,
+      trim: true,
+    },
+    password: {
+      type: String,
+      required: "Cannot have a user without a password",
+      trim: true,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
 
-const User = mongoose.model("User", UserSchema);
+UserSchema.methods = {
+  setHashedPassword: async function () {
+    try {
+      const salt = await bcrypt.genSalt(10);
+      this.password = await bcrypt.hash(this.password, salt);
+    } catch (err) {
+      console.log(err);
+    }
+  },
+  checkPassword: async function (plainTextPassword) {
+    try {
+      return await bcrypt.compare(plainTextPassword, this.password);
+    } catch (err) {
+      console.log(err);
+      return false;
+    }
+  },
+};
 
-module.exports = { User }
+const User = model("User", UserSchema);
+
+module.exports = { User };

@@ -1,14 +1,18 @@
 const mongoose = require("mongoose");
-const { Schema } = mongoose;
 
-const CategorySchema = new Schema({
-  title: {
-    type: String,
-    required: "Cannot have a category without its name",
-    unique: true
-  }
-})
+const { Schema, model } = mongoose;
 
-const Category = mongoose.model("Category", CategorySchema);
+const CategorySchema = new Schema(
+  {
+    title: {
+      type: String,
+      required: "Cannot add category without name",
+      unique: true,
+    },
+  },
+  { timestamps: true }
+);
 
-module.exports = { Category }
+const Category = model("Category", CategorySchema);
+
+module.exports = { Category };
