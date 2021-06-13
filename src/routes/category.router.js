@@ -1,9 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const { Category } = require("../models/category.model");
-const CategoryController = require("../controllers/category.controller");
 
-router.param("categoryId", CategoryController.findCategory);
+const CategoryController = require("../controllers/category/category.controller");
 
 router
   .route("/")
@@ -11,8 +9,9 @@ router
   .post(CategoryController.createNewCategory);
 
 router
-  .route("/:categoryId")
-  .get(CategoryController.getCategory)
-  .delete(CategoryController.deleteCategory);
+  .route("/:id")
+  .get(CategoryController.getCategoryById)
+  .post(CategoryController.updateCategoryById)
+  .delete(CategoryController.deleteCategoryById);
 
 module.exports = router;

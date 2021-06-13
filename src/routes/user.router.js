@@ -1,55 +1,53 @@
 const express = require("express");
 const router = express.Router();
-const VideoController = require("../controllers/video.controller");
+
+const PlaylistController = require("../controllers/playlist/playlist.controller");
+const LikeController = require("../controllers/liked/liked.controller");
+const WatchlaterController = require("../controllers/watchlater/watchlater.controller");
+const HistoryController = require("../controllers/history/history.controller");
 const UserController = require("../controllers/user.controller");
-const LikeController = require("../controllers/like.controller");
-const WatchlaterController = require("../controllers/watchlater.controllers");
-const PlaylistController = require("../controllers/playlist.controller");
+const { verifyAuth } = require("../middlewares/verifyAuth");
 
+router.use(verifyAuth);
 router.get("/", UserController.getAllUsers);
+router
+  .route("/watchlater")
+  .get(WatchlaterController.getWatchlaterByUserId)
+  .post(WatchlaterController.saveToWatchlater);
+router.delete(
+  "/watchlater/:videoId",
+  WatchlaterController.removeFromWatchlater
+);
+router
+  .route("/liked")
+  .get(LikeController.getLikedPlaylistByUserId)
+  .post(LikeController.saveOrRemoveLikedItems);
+router.delete("/liked/:videoId", LikeController.removeFromLikedPlaylist);
+router
+  .route("/playlists")
+  .get(PlaylistController.getPlaylistCollectionByUserId)
+  .post(PlaylistController.createNewPlaylist);
+router
+  .route("/playlists/:playlistId")
+  .get(PlaylistController.getPlaylistByPlaylistId)
+  .post(PlaylistController.addToPlaylist)
+  .delete(PlaylistController.deletePlaylist);
+router.delete(
+  "/playlists/:playlistId/:videoId",
+  PlaylistController.removeFromPlaylist
+);
+router
+  .route("/history")
+  .get(HistoryController.getHistoryByUserId)
+  .post(HistoryController.addToHistory)
+  .delete(HistoryController.removeUserHistory);
 
-router.param("userId", UserController.findUser);
+router.delete("/history/:videoId", HistoryController.removeFromHistory);
 
 router
   .route("/:userId")
-  .get(UserController.getUser)
-  .post(UserController.updateUser);
-
-router
-  .route("/:userId/liked")
-  .get(LikeController.getLikedVideos)
-  .post(LikeController.saveToLike);
-
-router
-  .route("/:userId/watchlater")
-  .get(WatchlaterController.getWatchlaterVideos)
-  .post(WatchlaterController.saveToWatchlater);
-
-router.param("vId", VideoController.findVideo);
-
-router.delete("/:userId/liked/:vId", LikeController.removeFromLiked);
-
-router.delete(
-  "/:userId/watchlater/:vId",
-  WatchlaterController.removeFromWatchlater
-);
-
-router
-  .route("/:userId/playlists")
-  .get(PlaylistController.getAllPlaylists)
-  .post(PlaylistController.createNewPlaylist);
-
-router.param("pId", PlaylistController.findPlaylist);
-
-router
-  .route("/:userId/playlists/:pId")
-  .get(PlaylistController.getPlaylistVideos)
-  .post(PlaylistController.saveToPlaylist)
-  .delete(PlaylistController.deletePlaylist);
-
-router.delete(
-  "/:userId/playlists/:pId/:vId",
-  PlaylistController.deletePlaylistVideo
-);
+  .get(UserController.getUserById)
+  .post(UserController.updateUserById)
+  .delete(UserController.deleteUserById);
 
 module.exports = router;
