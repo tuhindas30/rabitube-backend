@@ -112,7 +112,9 @@ const removeFromPlaylist = async (req, res, next) => {
       throw new HttpError(404, "No playlist collection found");
     }
     const playlist = findPlaylistByPlaylistId(playlistCollection, playlistId);
-    const itemIndex = playlist.items.findIndex((item) => item.video == videoId);
+    const itemIndex = playlist.items.findIndex(
+      (item) => item.video._id == videoId
+    );
     if (itemIndex > -1) {
       playlist.items.splice(itemIndex, 1);
       await playlistCollection.populate("playlists.items.video").execPopulate();

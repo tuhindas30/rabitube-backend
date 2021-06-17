@@ -2,7 +2,9 @@ const { Playlist } = require("../../models/playlist.model");
 const { HttpError } = require("../../utils/helper");
 
 const findPlaylistCollectionByUserId = async (userId) => {
-  const playlists = await Playlist.findOne({ user: userId });
+  const playlists = await Playlist.findOne({ user: userId }).populate(
+    "playlists.items.video"
+  );
   return playlists;
 };
 
