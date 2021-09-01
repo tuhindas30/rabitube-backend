@@ -18,10 +18,22 @@ const findPlaylistByPlaylistId = (playlistCollection, playlistId) => {
   return playlist;
 };
 
-const createNewPlaylistCollection = async (userId, title) => {
+const createNewAndAddToPlaylist = async (collection, title, videoId) => {
+  collection.playlists.push({ title, items: [{ video: videoId }] });
+  await collection.populate("playlists.items.video").execPopulate();
+  await collection.save();
+  return collection;
+};
+
+const createNewPlaylistCollection = async (userId, title, videoId) => {
   const newPlaylistCollection = new Playlist({
     user: userId,
-    playlists: [{ title }],
+    playlists: [
+      {
+        title,
+        items: [{ video: videoId }],
+      },
+    ],
   });
   await newPlaylistCollection.populate("playlists.items.video").execPopulate();
   await newPlaylistCollection.save();
@@ -31,5 +43,6 @@ const createNewPlaylistCollection = async (userId, title) => {
 module.exports = {
   findPlaylistCollectionByUserId,
   findPlaylistByPlaylistId,
+  createNewAndAddToPlaylist,
   createNewPlaylistCollection,
 };
