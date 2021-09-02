@@ -8,7 +8,6 @@ const UserSchema = new Schema(
       type: String,
       required: "Cannot have a user without a username",
       maxLength: 50,
-      unique: true,
     },
     email: {
       type: String,

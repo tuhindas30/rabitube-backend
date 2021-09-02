@@ -6,6 +6,12 @@ const { doesUserExist } = require("./helper");
 const signup = async (req, res, next) => {
   try {
     const userData = req.body;
+    const isUserExist = await User.findOne({
+      email: userData.email,
+    });
+    if (isUserExist) {
+      throw new HttpError(400, "User already exist");
+    }
     let user = new User(userData);
     await user.setHashedPassword();
     user = await user.save();
