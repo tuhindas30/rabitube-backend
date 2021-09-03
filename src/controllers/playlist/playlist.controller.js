@@ -4,6 +4,7 @@ const {
   findPlaylistCollectionByUserId,
   createNewPlaylistCollection,
   findPlaylistByPlaylistId,
+  createNewAndAddToPlaylist,
 } = require("./helper");
 
 const getPlaylistCollectionByUserId = async (req, res, next) => {
@@ -42,13 +43,15 @@ const getPlaylistByPlaylistId = async (req, res, next) => {
 
 const createNewPlaylist = async (req, res, next) => {
   const { userId } = req;
-  const { title } = req.body;
+  const { title, videoId } = req.body;
   try {
-    const playlistCollection = await findPlaylistCollectionByUserId(userId);
+    let playlistCollection = await findPlaylistCollectionByUserId(userId);
     if (playlistCollection) {
-      playlistCollection.playlists.push({ title });
-      await playlistCollection.populate("playlists.items.video").execPopulate();
-      await playlistCollection.save();
+      playlistCollection = await createNewAndAddToPlaylist(
+        playlistCollection,
+        title,
+        videoId
+      );
       return res.json({
         status: "SUCCESS",
         data: playlistCollection,
@@ -57,7 +60,8 @@ const createNewPlaylist = async (req, res, next) => {
     }
     const newPlaylistCollection = await createNewPlaylistCollection(
       userId,
-      title
+      title,
+      videoId
     );
     return res.json({
       status: "SUCCESS",
